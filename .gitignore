@@ -1,3 +1,7 @@
-venv
+# Cache files
 */__pycache__/*
 __pycache__/*
+
+
+# Virtual environment files
+venv
