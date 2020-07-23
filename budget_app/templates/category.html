@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <h3>{{ category.name }}</h3>
+        <p>{{category.description}}</p>
+    </div>
+    <div class="card-footer">
+        <a class="btn btn-secondary btn-sm m-1"
+            href="{{ url_for('update_category',category_id=category.id)}}">Update</a>
+        <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal" >Delete</button>
+    </div>
+</div>
+<a class="btn btn-primary mt-5" href="{{ url_for('categories')}}">Back</a>
+
+<!-- Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteModalLabel">Delete Category?</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <form action="{{ url_for('delete_category',category_id=category.id) }}" method="POST">
+              <input type="submit" class="btn btn-danger" value="Delete">
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

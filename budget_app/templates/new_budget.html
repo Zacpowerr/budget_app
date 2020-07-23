@@ -1,0 +1,124 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="content-section">
+    <form method="POST" action="">
+        {{  form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">Create new Budget</legend>
+            <div class="form-group">
+                {{ form.name.label(class="form-control-label") }}
+
+                {% if form.name.errors %}
+                {{ form.name(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.name.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.name(class="form-control form-control-lg") }}
+                {% endif %}
+
+            </div>
+            <div class="form-group">
+                {{ form.inicial_amount.label(class="form-control-label") }}
+
+                {% if form.inicial_amount.errors %}
+                {{ form.inicial_amount(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.inicial_amount.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.inicial_amount(class="form-control form-control-lg") }}
+                {% endif %}
+
+            </div>
+
+            <div class="form-group">
+                {{ form.category_list.label(class="form-control-label") }}
+
+                {{form.category_list(class="form-control form-control-lg",readonly=true)}}
+            </div>
+
+            <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#categoryModal">Add
+                category</button>
+
+        </fieldset>
+        <div class="form-group">
+            {{ form.submit(class="btn btn-outline-info") }}
+        </div>
+    </form>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="categoryModal" tabindex="-1" role="dialog" aria-labelledby="categoryModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="categoryModalLabel">Adding Category</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <div class="form-group">
+                    {{ form_bc.category_id.label(class="form-control-label") }}
+
+                    {% if form_bc.category_id.errors %}
+                    {{ form_bc.category_id(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form_bc.category_id.errors %}
+                        <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form_bc.category_id(class="form-control form-control-lg",id="category_id_modal") }}
+                    {% endif %}
+
+                </div>
+                <div class="form-group">
+                    {{ form_bc.threshold.label(class="form-control-label") }}
+
+                    {% if form_bc.threshold.errors %}
+                    {{ form_bc.threshold(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form_bc.threshold.errors %}
+                        <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form_bc.threshold(class="form-control form-control-lg",id="threshold_modal") }}
+                    {% endif %}
+
+                </div>
+                <div class="form-group">
+                    {{ form_bc.used_amount.label(class="form-control-label") }}
+
+                    {% if form_bc.used_amount.errors %}
+                    {{ form_bc.used_amount(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form_bc.used_amount.errors %}
+                        <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form_bc.used_amount(class="form-control form-control-lg",id="used_amount_modal") }}
+                    {% endif %}
+
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="addCategory()" data-dismiss="modal">Add</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{{ url_for('static', filename='js/category-add.js') }}"></script>
+{% endblock %}
