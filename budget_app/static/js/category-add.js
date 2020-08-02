@@ -8,7 +8,7 @@ function addCategory() {
     category_list.push(category);
     var prev = $("#category_list").val()
     category_list.forEach(element => {
-        $("#category_list").val(prev+element+',')
+        $("#category_list").val(prev+JSON.stringify(element)+ ' - ')
         
     });
 }

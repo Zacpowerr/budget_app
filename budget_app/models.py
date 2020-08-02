@@ -27,7 +27,13 @@ class Budget(db.Model):
     budget_categories = db.relationship('Budget_category',backref='budget',lazy=True)
 
     def __repr__(self):
-        return f"Budget('{self.name}',{self.inicial_amount},{self.available_amount})"    
+        return f"Budget('{self.name}',{self.inicial_amount},{self.available_amount})"
+
+    def amount_available(self):
+        for categories in self.budget_categories:
+            flash('category threshold: {categories.threshold}')
+
+        return value    
 
 
 class Category(db.Model):

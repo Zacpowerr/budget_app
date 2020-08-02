@@ -1,8 +1,9 @@
-from flask import request, jsonify, render_template, url_for, flash, redirect
+from flask import request, render_template, url_for, flash, redirect, jsonify
 from budget_app import app, db, bcrypt
 from budget_app.models import User, Category, Budget, Budget_category
 from budget_app.forms import CategoryForm, RegisterForm, LoginForm, UpdateAccountForm, BudgetForm, BudgetCategoryForm
 from flask_login import login_user, current_user, logout_user, login_required
+import json
 
 
 # Web routes
@@ -128,7 +129,10 @@ def users():
 @app.route('/budgets')
 @login_required
 def budgets():
-    return render_template('budgets.html',title='Budgets')
+    budgets = Budget.query.all()
+    for budget in budgets:
+        budget.amount_available()
+    return render_template('budgets.html',title='Budgets',budgets=budgets)
 
 @app.route('/budget/new',methods=['GET','POST'])
 @login_required
@@ -137,11 +141,19 @@ def new_budget():
     form_bc = BudgetCategoryForm()
     form_bc.category_id.choices = [(c.id, c.name) for c in Category.query.order_by('name')]
     if form.validate_on_submit():
-        flash(f'Submited')
-            # flash(f'lista de categorias:'+ form.category_list.data)
-        # budget = Budget(name=form.name.data,inicial_amount=form.inicial_amount.data,user_id=current_user.id)
-        # for category_id in form.category_list:
-        # budget_category = Budget_category(threshold=form_bc.threshold.data,used_amount=form_bc.used_amount.data,budget.id,category_id)
+        budget = Budget(name=form.name.data,inicial_amount=form.inicial_amount.data,user_id=current_user.id)
+        db.session.add(budget)
+        db.session.commit()
+        raw_string = form.category_list.data 
+        obj_list = raw_string.rsplit(" - ")
+        obj_list.remove("")
+        for obj in obj_list:
+            data = json.loads(obj)
+            budget_category = Budget_category(threshold=data['threshold'],used_amount=data['used_amount'],category_id=data['category_id'],budget_id=budget.id)
+            db.session.add(budget_category)
+        db.session.commit()
+        flash(f'Budget created!','success')
+        return redirect(url_for('budgets'))
 
     return render_template('new_budget.html',form=form, form_bc=form_bc, title='Budget creation')
 
