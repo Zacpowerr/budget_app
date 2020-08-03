@@ -24,7 +24,6 @@ class Budget(db.Model):
     saving_amount = db.Column(db.Float,nullable=True,default=0)
     available_amount = db.Column(db.Float,nullable=True,default=0)
     user_id = db.Column(db.Integer,db.ForeignKey('user.id'),nullable=False)
-    budget_categories = db.relationship('Budget_category',backref='budget',lazy=True)
 
     def __repr__(self):
         return f"Budget('{self.name}',{self.inicial_amount},{self.available_amount})"
@@ -52,6 +51,7 @@ class Budget_category(db.Model):
     available_amount = db.Column(db.Float,nullable=True,default=0)
     budget_id = db.Column(db.Integer,db.ForeignKey('budget.id'),nullable=False)
     category_id = db.Column(db.Integer,db.ForeignKey('category.id'),nullable=False)
+    budgets = db.relationship('Budget',backref='categories',lazy=True)
 
     def __repr__(self):
         return f"Budget_category('{self.budget_id}','{self.category_id}','{self.threshold}')"

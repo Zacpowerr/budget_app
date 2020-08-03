@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="content-section">
+    <form method="POST" action="">
+        {{  form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">{{legend}}</legend>
+            <small class="text-muted" >Previous amount: {{ previous }}</small>
+            <div class="form-group">
+                {{ form.used_amount.label(class="form-control-label") }}
+                {% if form.used_amount.errors %}
+                {{ form.used_amount(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.used_amount.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.used_amount(class="form-control form-control-lg") }}
+                {% endif %}
+
+        </fieldset>
+        <div class="form-group">
+            {{ form.submit(class="btn btn-outline-info") }}
+        </div>
+    </form>
+</div>
+<a class="btn btn-primary mt-5" href="{{ url_for('budget',budget_id=budget_id)}}">Back</a>
+
+{% endblock %}

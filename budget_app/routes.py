@@ -1,7 +1,7 @@
 from flask import request, render_template, url_for, flash, redirect, jsonify
 from budget_app import app, db, bcrypt
 from budget_app.models import User, Category, Budget, Budget_category
-from budget_app.forms import CategoryForm, RegisterForm, LoginForm, UpdateAccountForm, BudgetForm, BudgetCategoryForm
+from budget_app.forms import CategoryForm, RegisterForm, LoginForm, UpdateAccountForm, BudgetForm, BudgetCategoryForm, UpdateBudgetCategoryForm
 from flask_login import login_user, current_user, logout_user, login_required
 import json
 
@@ -122,17 +122,31 @@ def delete_category(category_id):
     flash(f'The category has been deleted!','success')
     return redirect(url_for('categories'))
 
-@app.route('/users')
-def users():
-    return render_template('underconstruction.html',title='Under Construction')
-
 @app.route('/budgets')
 @login_required
 def budgets():
-    budgets = Budget.query.all()
-    for budget in budgets:
-        budget.amount_available()
+    budgets = Budget.query.filter_by(user_id=current_user.id)
     return render_template('budgets.html',title='Budgets',budgets=budgets)
+
+
+@app.route('/budget/<budget_id>',methods=['GET','POST'])
+@login_required
+def budget(budget_id):
+    budget = Budget.query.get_or_404(budget_id)
+    categories = []
+    for c in budget.categories:
+        category_db = Category.query.filter_by(id=c.category.id).first()
+        name = category_db.name
+        category = {
+            'id':c.id,
+            'name':name,
+            'used_amount':c.used_amount,
+            'threshold':c.threshold,
+            'available_amount':c.available_amount,
+        }
+        categories.append(category)
+    return render_template('budget.html',budget=budget, title=budget.name,categories=categories)
+
 
 @app.route('/budget/new',methods=['GET','POST'])
 @login_required
@@ -141,7 +155,8 @@ def new_budget():
     form_bc = BudgetCategoryForm()
     form_bc.category_id.choices = [(c.id, c.name) for c in Category.query.order_by('name')]
     if form.validate_on_submit():
-        budget = Budget(name=form.name.data,inicial_amount=form.inicial_amount.data,user_id=current_user.id)
+        available_amount = form.inicial_amount.data
+        budget = Budget(name=form.name.data,inicial_amount=form.inicial_amount.data,user_id=current_user.id,available_amount=available_amount)
         db.session.add(budget)
         db.session.commit()
         raw_string = form.category_list.data 
@@ -149,7 +164,8 @@ def new_budget():
         obj_list.remove("")
         for obj in obj_list:
             data = json.loads(obj)
-            budget_category = Budget_category(threshold=data['threshold'],used_amount=data['used_amount'],category_id=data['category_id'],budget_id=budget.id)
+            available_amount = data['threshold']
+            budget_category = Budget_category(threshold=data['threshold'],used_amount=data['used_amount'],category_id=data['category_id'],budget_id=budget.id,available_amount=available_amount)
             db.session.add(budget_category)
         db.session.commit()
         flash(f'Budget created!','success')
@@ -157,6 +173,60 @@ def new_budget():
 
     return render_template('new_budget.html',form=form, form_bc=form_bc, title='Budget creation')
 
+
+@app.route('/budget/<budget_id>/update',methods=['GET','POST'])
+@login_required
+def update_budget(budget_id):
+    budget = Budget.query.get_or_404(budget_id)
+    form = BudgetForm()
+    form_bc = BudgetCategoryForm()
+    form_bc.category_id.choices = [(c.id, c.name) for c in Category.query.order_by('name')]
+    if form.validate_on_submit():
+        budget.name = form.name.data
+        budget.inicial_amount = form.inicial_amount.data
+        db.session.commit()
+        raw_string = form.category_list.data 
+        obj_list = raw_string.rsplit(" - ")
+        obj_list.remove("")
+        for obj in obj_list:
+            data = json.loads(obj)
+            available_amount = data['threshold']
+            budget_category = Budget_category(threshold=data['threshold'],used_amount=data['used_amount'],category_id=data['category_id'],budget_id=budget.id,available_amount=available_amount)
+            db.session.add(budget_category)
+        db.session.commit()
+        flash(f'Budget created!','success')
+        return redirect(url_for('budgets'))
+    elif request.method == 'GET':
+        form.name.data = budget.name
+        form.inicial_amount.data = budget.inicial_amount
+    return render_template('new_budget.html',form=form, form_bc=form_bc, title='Budget creation')
+
+@app.route('/budget/<budget_id>/delete',methods=['POST'])
+@login_required
+def delete_budget(budget_id):
+    budget = Budget.query.get_or_404(budget_id)
+    db.session.delete(budget)
+    db.session.commit()
+    flash(f'The budget has been deleted!','success')
+    return redirect(url_for('budgets'))
+
+@app.route('/budget/<budget_id>/update/category/<category_id>',methods=['GET','POST'])
+@login_required
+def update_budget_category(budget_id,category_id):
+    budget_category = Budget_category.query.get_or_404(category_id)
+    budget = Budget.query.get_or_404(budget_id)
+    form = UpdateBudgetCategoryForm()
+    previous = budget_category.used_amount
+    if form.validate_on_submit():
+        budget_category.used_amount = previous + float(form.used_amount.data)
+        budget_category.available_amount = budget_category.available_amount - float(form.used_amount.data)
+        budget.available_amount = budget.available_amount - float(form.used_amount.data)
+        db.session.commit()
+        flash(f'The category has been updated!','success')
+        return redirect(url_for('budget',budget_id=budget_id))
+    elif request.method == 'GET':
+        form.used_amount.data = 0.0
+    return render_template('budget_category_update.html',previous=previous, form=form,budget_id=budget_id, legend='Update category')
 # END Web routes
 
 # API routes

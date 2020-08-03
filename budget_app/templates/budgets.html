@@ -4,11 +4,11 @@
 <h1>Budget list:</h1>
 <div class="list-group">
     {% for budget in budgets %}
-    <a href="#" class="list-group-item list-group-item-action">
+    <a href="{{ url_for('budget',budget_id=budget.id) }}" class="list-group-item list-group-item-action">
         <div>
             {{ budget.name }}
         </div>
-        <small class="text-muted">{{budget.available_amount}}</small>
+        <small class="text-muted">Available Amount: {{budget.available_amount}}</small>
     </a>
     {% endfor %}
 </div>
