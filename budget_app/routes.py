@@ -185,21 +185,25 @@ def update_budget(budget_id):
         budget.name = form.name.data
         budget.inicial_amount = form.inicial_amount.data
         db.session.commit()
-        raw_string = form.category_list.data 
-        obj_list = raw_string.rsplit(" - ")
-        obj_list.remove("")
-        for obj in obj_list:
-            data = json.loads(obj)
-            available_amount = data['threshold']
-            budget_category = Budget_category(threshold=data['threshold'],used_amount=data['used_amount'],category_id=data['category_id'],budget_id=budget.id,available_amount=available_amount)
-            db.session.add(budget_category)
-        db.session.commit()
-        flash(f'Budget created!','success')
-        return redirect(url_for('budgets'))
+        if len(form.category_list.data) > 0:
+            raw_string = form.category_list.data 
+            obj_list = raw_string.rsplit(" - ")
+            obj_list.remove("")
+            for obj in obj_list:
+                data = json.loads(obj)
+                available_amount = data['threshold']
+                budget_category = Budget_category(threshold=data['threshold'],used_amount=data['used_amount'],category_id=data['category_id'],budget_id=budget.id,available_amount=available_amount)
+                db.session.add(budget_category)
+                db.session.commit()
+                flash(f'Budget updated!','success')
+                return redirect(url_for('budgets'))
+        else:
+            flash(f'Budget updated!','success')
+            return redirect(url_for('budgets'))
     elif request.method == 'GET':
         form.name.data = budget.name
         form.inicial_amount.data = budget.inicial_amount
-    return render_template('new_budget.html',form=form, form_bc=form_bc, title='Budget creation')
+    return render_template('new_budget.html',form=form, form_bc=form_bc, title='Update Budget')
 
 @app.route('/budget/<budget_id>/delete',methods=['POST'])
 @login_required
@@ -214,19 +218,37 @@ def delete_budget(budget_id):
 @login_required
 def update_budget_category(budget_id,category_id):
     budget_category = Budget_category.query.get_or_404(category_id)
+    category = Category.query.filter_by(id=budget_category.category.id).first()
+    category_name = category.name
     budget = Budget.query.get_or_404(budget_id)
     form = UpdateBudgetCategoryForm()
     previous = budget_category.used_amount
     if form.validate_on_submit():
         budget_category.used_amount = previous + float(form.used_amount.data)
         budget_category.available_amount = budget_category.available_amount - float(form.used_amount.data)
-        budget.available_amount = budget.available_amount - float(form.used_amount.data)
+        db.session.add(budget_category)
+        if form.used_amount.data != 0:
+            budget.available_amount = budget.available_amount - budget_category.used_amount
+        # print(budget, file=sys.stderr)
+        db.session.add(budget)
         db.session.commit()
         flash(f'The category has been updated!','success')
         return redirect(url_for('budget',budget_id=budget_id))
     elif request.method == 'GET':
         form.used_amount.data = 0.0
-    return render_template('budget_category_update.html',previous=previous, form=form,budget_id=budget_id, legend='Update category')
+    return render_template('budget_category_update.html',previous=previous,category_name=category_name, form=form,category_id=category_id,budget_id=budget_id, legend='Update category')
+
+
+@app.route('/budget/<budget_id>/update/category/<category_id>/delete',methods=['POST'])
+@login_required
+def delete_budget_category(budget_id,category_id):
+    budget_category = Budget_category.query.get_or_404(category_id)
+    db.session.delete(budget_category)
+    db.session.commit()
+    flash(f'The category has been deleted!','success')
+    return redirect(url_for('budget',budget_id=budget_id))
+
+
 # END Web routes
 
 # API routes

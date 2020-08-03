@@ -5,7 +5,8 @@
     <form method="POST" action="">
         {{  form.hidden_tag() }}
         <fieldset class="form-group">
-            <legend class="border-bottom mb-4">{{legend}}</legend>
+            <legend class="border-bottom mb-4">{{category_name}}</legend>
+
             <small class="text-muted" >Previous amount: {{ previous }}</small>
             <div class="form-group">
                 {{ form.used_amount.label(class="form-control-label") }}
@@ -26,6 +27,11 @@
         </div>
     </form>
 </div>
-<a class="btn btn-primary mt-5" href="{{ url_for('budget',budget_id=budget_id)}}">Back</a>
+<div>
+    <a class="btn btn-primary" href="{{ url_for('budget',budget_id=budget_id)}}">Back</a>
+    <form class="d-inline" action="{{ url_for('delete_budget_category',category_id=category_id,budget_id=budget_id) }}" method="post">
+        <input type="submit" class="btn btn-danger" value="Delete">
+    </form>
+</div>
 
 {% endblock %}

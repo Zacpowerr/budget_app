@@ -4,14 +4,15 @@
 <div class="card">
     <div class="card-body">
         <h3>{{ budget.name }}</h3>
+        <p class="text-muted"> Available: {{ (budget.available_amount | round(2)) }}</p>
         <div class="list-group">
             {% for category in categories %}
             <a href="{{ url_for('update_budget_category',budget_id=budget.id,category_id=category.id) }}" class="list-group-item list-group-item-action">
                 <div>
                     {{ category.name }}
                 </div>
-                <small class="text-muted mr-3"> Amount used: {{category.used_amount}}</small>
-                <small class="text-muted"> Available amount: {{category.available_amount}}</small>
+                <small class="text-muted mr-3"> Amount used: {{category.used_amount | round(2)}}</small>
+                <small class="text-muted"> Available amount: {{category.available_amount | round(2)}}</small>
                 <small class="text-muted"> Threshold: {{category.threshold}}</small>
             </a>
             {% endfor %}

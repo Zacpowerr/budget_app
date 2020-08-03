@@ -54,7 +54,7 @@ class CategoryForm(FlaskForm):
 class BudgetForm(FlaskForm):
     name = StringField('Name',validators=[DataRequired(),Length(min=2,max=20)])
     inicial_amount = DecimalField('Inicial amount',places=2, rounding=None)
-    category_list = TextAreaField('Categories',validators=[Length(min=1)])
+    category_list = TextAreaField('Categories')
     submit = SubmitField('Submit')
 
 class BudgetCategoryForm(FlaskForm):

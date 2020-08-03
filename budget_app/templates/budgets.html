@@ -8,7 +8,7 @@
         <div>
             {{ budget.name }}
         </div>
-        <small class="text-muted">Available Amount: {{budget.available_amount}}</small>
+        <small class="text-muted">Available Amount: {{(budget.available_amount | round(2))}}</small>
     </a>
     {% endfor %}
 </div>
