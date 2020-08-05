@@ -17,3 +17,6 @@ login_manager.login_message_category = 'info'
 # app routes
 from budget_app import routes
 # END app routes
+
+# inicialize database
+db.create_all()
