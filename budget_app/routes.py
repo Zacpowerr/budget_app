@@ -228,9 +228,9 @@ def update_budget_category(budget_id,category_id):
         budget_category.available_amount = budget_category.available_amount - float(form.used_amount.data)
         db.session.add(budget_category)
         if form.used_amount.data != 0:
-            budget.available_amount = budget.available_amount - budget_category.used_amount
-        # print(budget, file=sys.stderr)
-        db.session.add(budget)
+            budget.available_amount = budget.available_amount - float(form.used_amount.data)
+            db.session.add(budget)
+            # print(budget, file=sys.stderr)
         db.session.commit()
         flash(f'The category has been updated!','success')
         return redirect(url_for('budget',budget_id=budget_id))
