@@ -7,6 +7,18 @@
     </div>
     <div class="card-body">
         <div class="mt-3 mb-3">
+            <h6>Current budget:</h6>
+            <div class="list-group">
+                <a href="{{ url_for('budget',budget_id=budget.id) }}" class="list-group-item list-group-item-action">
+                    <div>
+                        {{ budget.name }}
+                    </div>
+                    <small class="text-muted">Inicial Amount: {{(budget.inicial_amount | round(2))}}</small>
+                    <small class="text-muted">Available Amount: {{(budget.available_amount | round(2))}}</small>
+                </a>
+            </div>
+        </div>
+        <div class="mt-3 mb-3">
             <h6> See list of categories</h6>
             <a class="btn btn-primary" role="button" href="{{ url_for('categories') }}">Categories</a>
         </div>

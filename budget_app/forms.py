@@ -60,7 +60,6 @@ class BudgetForm(FlaskForm):
 class BudgetCategoryForm(FlaskForm):
     category_id = SelectField(u'Category', coerce=int)
     threshold = DecimalField('Threshold',places=2, rounding=None)
-    used_amount = DecimalField('Used amount',places=2, rounding=None)
     submit = SubmitField('Submit')
 
 class UpdateBudgetCategoryForm(FlaskForm):

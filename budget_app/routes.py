@@ -10,7 +10,8 @@ import json
 @app.route('/home')
 @app.route('/')
 def home():
-     return render_template('home.html')
+    budget = Budget.query.first()
+    return render_template('home.html',budget=budget)
 
 @app.route('/about')
 def about():
@@ -165,7 +166,7 @@ def new_budget():
         for obj in obj_list:
             data = json.loads(obj)
             available_amount = data['threshold']
-            budget_category = Budget_category(threshold=data['threshold'],used_amount=data['used_amount'],category_id=data['category_id'],budget_id=budget.id,available_amount=available_amount)
+            budget_category = Budget_category(threshold=data['threshold'],category_id=data['category_id'],budget_id=budget.id,available_amount=available_amount)
             db.session.add(budget_category)
         db.session.commit()
         flash(f'Budget created!','success')
@@ -183,7 +184,10 @@ def update_budget(budget_id):
     form_bc.category_id.choices = [(c.id, c.name) for c in Category.query.order_by('name')]
     if form.validate_on_submit():
         budget.name = form.name.data
+        previous = budget.inicial_amount
         budget.inicial_amount = form.inicial_amount.data
+        amount_dif = float(budget.inicial_amount) - previous
+        budget.available_amount = budget.available_amount + amount_dif
         db.session.commit()
         if len(form.category_list.data) > 0:
             raw_string = form.category_list.data 
@@ -192,7 +196,7 @@ def update_budget(budget_id):
             for obj in obj_list:
                 data = json.loads(obj)
                 available_amount = data['threshold']
-                budget_category = Budget_category(threshold=data['threshold'],used_amount=data['used_amount'],category_id=data['category_id'],budget_id=budget.id,available_amount=available_amount)
+                budget_category = Budget_category(threshold=data['threshold'],category_id=data['category_id'],budget_id=budget.id,available_amount=available_amount)
                 db.session.add(budget_category)
                 db.session.commit()
                 flash(f'Budget updated!','success')
@@ -209,6 +213,9 @@ def update_budget(budget_id):
 @login_required
 def delete_budget(budget_id):
     budget = Budget.query.get_or_404(budget_id)
+    budget_categories = Budget_category.query.filter_by(budget_id=budget.id).all()
+    for category in budget_categories:
+        db.session.delete(category)
     db.session.delete(budget)
     db.session.commit()
     flash(f'The budget has been deleted!','success')

@@ -3,7 +3,6 @@ function addCategory() {
     var category = {
         "category_id" : $("#category_id_modal").val(),
         "threshold" : $("#threshold_modal").val(),
-        "used_amount" : $("#used_amount_modal").val(),
     }
     category_list.push(category);
     var prev = $("#category_list").val()
