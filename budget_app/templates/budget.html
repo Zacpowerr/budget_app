@@ -5,6 +5,9 @@
     <div class="card-body">
         <h3>{{ budget.name }}</h3>
         <p class="text-muted"> Available: {{ (budget.available_amount | round(2)) }}</p>
+        <a class="btn btn-outline-secondary btn-sm m-1 mr-2 mb-3"
+            href="{{ url_for('update_budget',budget_id=budget.id)}}">Update</a>
+        <button type="button" class="btn btn-outline-danger btn-sm m-1 mb-3" data-toggle="modal" data-target="#deleteModal" >Delete</button>
         <div class="list-group">
             {% for category in categories %}
             <a href="{{ url_for('update_budget_category',budget_id=budget.id,category_id=category.id) }}" class="list-group-item list-group-item-action">
@@ -18,13 +21,8 @@
             {% endfor %}
         </div>
     </div>
-    <div class="card-footer">
-        <a class="btn btn-secondary btn-sm m-1"
-            href="{{ url_for('update_budget',budget_id=budget.id)}}">Update</a>
-        <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal" >Delete</button>
-    </div>
 </div>
-<a class="btn btn-primary mt-5" href="{{ url_for('budgets')}}">Back</a>
+<a class="btn btn-sm btn-outline-secondary mt-3 mb-2" href="{{ url_for('budgets')}}">Back</a>
 
 <!-- Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">

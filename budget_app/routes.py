@@ -10,8 +10,10 @@ import json
 @app.route('/home')
 @app.route('/')
 def home():
-    budget = Budget.query.first()
-    return render_template('home.html',budget=budget)
+    b = ''
+    if current_user.is_authenticated:
+        b = Budget.query.filter_by(user_id=current_user.id).first()
+    return render_template('home.html',budget=b)
 
 @app.route('/about')
 def about():

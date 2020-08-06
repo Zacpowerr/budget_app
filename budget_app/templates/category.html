@@ -7,12 +7,12 @@
         <p>{{category.description}}</p>
     </div>
     <div class="card-footer">
-        <a class="btn btn-secondary btn-sm m-1"
+        <a class="btn btn-outline-secondary btn-sm m-1"
             href="{{ url_for('update_category',category_id=category.id)}}">Update</a>
-        <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal" >Delete</button>
+        <button type="button" class="btn btn-outline-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal" >Delete</button>
     </div>
 </div>
-<a class="btn btn-primary mt-5" href="{{ url_for('categories')}}">Back</a>
+<a class="btn btn-sm btn-outline-secondary mt-3 mb-2" href="{{ url_for('categories')}}">Back</a>
 
 <!-- Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">

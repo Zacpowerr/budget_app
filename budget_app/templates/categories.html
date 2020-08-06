@@ -1,7 +1,10 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<h1>Category list:</h1>
+<div class="text-center mb-4">
+    <h3>Category list</h3>
+</div>
+<a class="btn btn-sm btn-outline-dark mb-3" href="{{ url_for('new_category') }}">Create new Category</a>
 <div class="list-group">
     {% for category in categories %}
     <a href="{{ url_for('category',category_id=category.id) }}" class="list-group-item list-group-item-action">
@@ -12,6 +15,5 @@
     </a>
     {% endfor %}
 </div>
-<a class="btn btn-primary mt-5" href="{{ url_for('home') }}">Back</a>
-<a class="btn btn-primary mt-5" href="{{ url_for('new_category') }}">Create new Category</a>
+<a class="btn btn-sm btn-outline-secondary mt-3 mb-2" href="{{ url_for('home') }}">Back</a>
 {% endblock %}

@@ -37,21 +37,22 @@
 
             </div>
 
+            <button type="button" class="btn btn-outline-primary btn-sm m-1" data-toggle="modal" data-target="#categoryModal">Add
+                category</button>
+
             <div class="form-group">
                 {{ form.category_list.label(class="form-control-label") }}
 
                 {{form.category_list(class="form-control form-control-lg",readonly=true)}}
             </div>
 
-            <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#categoryModal">Add
-                category</button>
-
         </fieldset>
         <div class="form-group">
-            {{ form.submit(class="btn btn-outline-info") }}
+            {{ form.submit(class="btn btn-outline-dark") }}
         </div>
     </form>
 </div>
+<a class="btn btn-sm btn-outline-secondary" href="{{ url_for('budgets')}}">Back</a>
 
 <!-- Modal -->
 <div class="modal fade" id="categoryModal" tabindex="-1" role="dialog" aria-labelledby="categoryModalLabel"
