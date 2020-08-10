@@ -5,14 +5,13 @@ from budget_app.forms import CategoryForm, RegisterForm, LoginForm, UpdateAccoun
 from flask_login import login_user, current_user, logout_user, login_required
 import json
 
-
 # Web routes
 @app.route('/home')
 @app.route('/')
 def home():
     b = ''
     if current_user.is_authenticated:
-        b = Budget.query.filter_by(user_id=current_user.id).first()
+        b = Budget.query.filter_by(user_id=current_user.id).order_by(Budget.id.desc()).first()
     return render_template('home.html',budget=b)
 
 @app.route('/about')
@@ -195,14 +194,15 @@ def update_budget(budget_id):
             raw_string = form.category_list.data 
             obj_list = raw_string.rsplit(" - ")
             obj_list.remove("")
+            # print(budget, file=sys.stderr)
             for obj in obj_list:
                 data = json.loads(obj)
                 available_amount = data['threshold']
                 budget_category = Budget_category(threshold=data['threshold'],category_id=data['category_id'],budget_id=budget.id,available_amount=available_amount)
                 db.session.add(budget_category)
-                db.session.commit()
-                flash(f'Budget updated!','success')
-                return redirect(url_for('budgets'))
+            db.session.commit()
+            flash(f'Budget updated!','success')
+            return redirect(url_for('budgets'))
         else:
             flash(f'Budget updated!','success')
             return redirect(url_for('budgets'))
@@ -252,6 +252,10 @@ def update_budget_category(budget_id,category_id):
 @login_required
 def delete_budget_category(budget_id,category_id):
     budget_category = Budget_category.query.get_or_404(category_id)
+    budget = Budget.query.get_or_404(budget_id)
+    budget.available_amount =  budget.available_amount + budget_category.used_amount 
+    # print(budget, file=sys.stderr)
+    db.session.add(budget)
     db.session.delete(budget_category)
     db.session.commit()
     flash(f'The category has been deleted!','success')
