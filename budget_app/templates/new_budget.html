@@ -52,7 +52,11 @@
         </div>
     </form>
 </div>
+{% if budget_id %}
+<a class="btn btn-sm btn-outline-secondary" href="{{ url_for('budget',budget_id=budget_id)}}">Back</a>
+{% else %}
 <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('budgets')}}">Back</a>
+{% endif %}
 
 <!-- Modal -->
 <div class="modal fade" id="categoryModal" tabindex="-1" role="dialog" aria-labelledby="categoryModalLabel"

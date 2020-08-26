@@ -97,7 +97,7 @@ def new_category():
         flash(f'Category {form.name.data} created!','success')
         return redirect(url_for('categories'))
 
-    return render_template('new_category.html', form=form, title="New Category", legend='New Category')
+    return render_template('new_category.html', form=form, title="New Category")
 
 @app.route('/category/<category_id>/update',methods=['GET','POST'])
 @login_required
@@ -113,7 +113,7 @@ def update_category(category_id):
     elif request.method == 'GET':
         form.name.data = category.name
         form.description.data = category.description
-    return render_template('new_category.html',category=category, form=form, title='Update Category', legend='Update category')
+    return render_template('new_category.html',category=category,category_id=category_id, form=form, title='Update Category')
 
 @app.route('/category/<category_id>/delete',methods=['POST'])
 @login_required
@@ -202,14 +202,15 @@ def update_budget(budget_id):
                 db.session.add(budget_category)
             db.session.commit()
             flash(f'Budget updated!','success')
-            return redirect(url_for('budgets'))
+            return redirect(url_for('budget',budget_id=budget.id))
         else:
             flash(f'Budget updated!','success')
-            return redirect(url_for('budgets'))
+            return redirect(url_for('budget',budget_id=budget.id))
     elif request.method == 'GET':
         form.name.data = budget.name
         form.inicial_amount.data = budget.inicial_amount
-    return render_template('new_budget.html',form=form, form_bc=form_bc, title='Update Budget')
+        budget_id = budget.id
+    return render_template('new_budget.html',form=form, form_bc=form_bc,budget_id=budget_id, title='Update Budget')
 
 @app.route('/budget/<budget_id>/delete',methods=['POST'])
 @login_required
@@ -245,7 +246,7 @@ def update_budget_category(budget_id,category_id):
         return redirect(url_for('budget',budget_id=budget_id))
     elif request.method == 'GET':
         form.used_amount.data = 0.0
-    return render_template('budget_category_update.html',previous=previous,category_name=category_name, form=form,category_id=category_id,budget_id=budget_id, legend='Update category')
+    return render_template('budget_category_update.html',previous=previous,category_name=category_name, form=form,category_id=category_id,budget_id=budget_id)
 
 
 @app.route('/budget/<budget_id>/update/category/<category_id>/delete',methods=['POST'])

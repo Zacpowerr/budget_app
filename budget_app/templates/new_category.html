@@ -44,5 +44,9 @@
         </div>
     </form>
 </div>
+{% if category_id %}
+<a class="btn btn-sm btn-outline-secondary mt-3 mb-2" href="{{ url_for('category',category_id=category_id)}}">Back</a>
+{% else %}
 <a class="btn btn-sm btn-outline-secondary mt-3 mb-2" href="{{ url_for('categories')}}">Back</a>
+{% endif %}
 {% endblock %}
