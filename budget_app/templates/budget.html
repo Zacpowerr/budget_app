@@ -14,8 +14,8 @@
                 <div>
                     {{ category.name }}
                 </div>
-                <small class="text-muted mr-3"> Amount used: {{category.used_amount | round(2)}}</small>
                 <small class="text-muted"> Available amount: {{category.available_amount | round(2)}}</small>
+                <small class="text-muted mr-3"> Amount used: {{category.used_amount | round(2)}}</small>
                 <small class="text-muted"> Threshold: {{category.threshold}}</small>
             </a>
             {% endfor %}

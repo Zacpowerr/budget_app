@@ -18,5 +18,5 @@ login_manager.login_message_category = 'info'
 from budget_app import routes
 # END app routes
 
-# inicialize database
-db.create_all()
+# call migrations
+from budget_app import migrations

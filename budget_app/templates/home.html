@@ -19,6 +19,17 @@
                 </a>
             </div>
         </div>
+        {% else %}
+        <div class="mt-3 mb-3">
+            <h6>Current budget:</h6>
+            <div class="list-group">
+                <a href="{{ url_for('new_budget') }}" class="list-group-item-action ml-3">
+                    <div>
+                        You don`t have any budget at the moment.
+                    </div>
+                </a>
+            </div>
+        </div>
         {% endif %}
         <div class="mt-3 mb-3">
             {% if current_user.is_authenticated %}
