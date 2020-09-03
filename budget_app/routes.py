@@ -212,20 +212,43 @@ def update_budget(budget_id):
         amount_dif = float(budget.inicial_amount) - previous
         budget.available_amount = budget.available_amount + amount_dif
         db.session.commit()
+        new_category_amount = 0
         if len(form.category_list.data) > 0:
             raw_string = form.category_list.data 
             obj_list = raw_string.rsplit(" - ")
             obj_list.remove("")
-            # print(budget, file=sys.stderr)
             for obj in obj_list:
                 data = json.loads(obj)
                 available_amount = data['threshold']
+                # Verifying amount for the default category
+                new_category_amount = new_category_amount + float(available_amount)
+                # Verifying limit for the budget
+                if new_category_amount > budget.inicial_amount:
+                    form.category_list.data = ''
+                    flash(f'Error in creating budget, the threshold of categories has to be less then the available amount of the budget','danger')
+                    return render_template('new_budget.html',form=form, form_bc=form_bc, title='Budget creation')
                 budget_category = Budget_category(threshold=data['threshold'],category_id=data['category_id'],budget_id=budget.id,available_amount=available_amount)
                 db.session.add(budget_category)
             db.session.commit()
+            threshold = 0
+             # Adding new category with leftovers of the other categories
+            budget_categories = Budget_category.query.filter(Budget_category.category_id != 100).filter_by(budget_id=budget.id).all()
+            for bc in budget_categories:
+                threshold = threshold+ bc.threshold
+            if threshold > 0:
+                default_category = Budget_category.query.filter_by(category_id = 100).first()
+                default_category.threshold = budget.inicial_amount - threshold
+                default_category.available_amount =  default_category.available_amount - float(available_amount)
+                db.session.add(default_category)
+                db.session.commit()
             flash(f'Budget updated!','success')
             return redirect(url_for('budget',budget_id=budget.id))
         else:
+            default_category = Budget_category.query.filter_by(category_id = 100).first()
+            default_category.threshold = default_category.threshold + amount_dif
+            default_category.available_amount =  default_category.available_amount + amount_dif
+            db.session.add(default_category)
+            db.session.commit()
             flash(f'Budget updated!','success')
             return redirect(url_for('budget',budget_id=budget.id))
     elif request.method == 'GET':
@@ -278,6 +301,7 @@ def delete_budget_category(budget_id,category_id):
     budget = Budget.query.get_or_404(budget_id)
     default_category = Budget_category.query.filter_by(category_id=100).first()
     default_category.threshold = default_category.threshold + budget_category.threshold
+    default_category.available_amount = default_category.available_amount + budget_category.threshold
     budget.available_amount =  budget.available_amount + budget_category.used_amount 
     # print(budget, file=sys.stderr)
     db.session.add(default_category)
