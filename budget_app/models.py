@@ -39,6 +39,7 @@ class Category(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     name = db.Column(db.String(45),nullable=False,unique=True)
     description = db.Column(db.String(45),nullable=True)
+    deleted = db.Column(db.Boolean(), default=False)
     budgets = db.relationship('Budget_category',backref='category',lazy=True)
 
     def __repr__(self):

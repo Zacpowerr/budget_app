@@ -76,7 +76,7 @@ def account():
 @app.route('/categories')
 @login_required
 def categories():
-    categories = Category.query.all()
+    categories = Category.query.filter_by(deleted = False).all()
     return render_template('categories.html', categories=categories, title="Categories")
 
 
@@ -84,6 +84,9 @@ def categories():
 @login_required
 def category(category_id):
     category = Category.query.get_or_404(category_id)
+    if category.deleted:
+        flash(f'Category does not exist.','danger')
+        return redirect(url_for('categories'))
     return render_template('category.html',category=category, title=category.name)
 
 @app.route('/category/new',methods=['GET','POST'])
@@ -119,7 +122,11 @@ def update_category(category_id):
 @login_required
 def delete_category(category_id):
     category = Category.query.get_or_404(category_id)
-    db.session.delete(category)
+    if category.deleted:
+        flash(f'The category has been deleted!','success')
+        return redirect(url_for('categories'))
+    category.deleted = True
+    db.session.add(category)
     db.session.commit()
     flash(f'The category has been deleted!','success')
     return redirect(url_for('categories'))
@@ -155,7 +162,7 @@ def budget(budget_id):
 def new_budget():
     form = BudgetForm()
     form_bc = BudgetCategoryForm()
-    form_bc.category_id.choices = [(c.id, c.name) for c in Category.query.filter(Category.id != 100).order_by('id')]
+    form_bc.category_id.choices = [(c.id, c.name) for c in Category.query.filter_by(deleted = False).filter(Category.id != 100).order_by('id')]
     if form.validate_on_submit():
         available_amount = form.inicial_amount.data
         budget = Budget(name=form.name.data,inicial_amount=form.inicial_amount.data,user_id=current_user.id,available_amount=available_amount)
@@ -181,7 +188,7 @@ def new_budget():
         # Adding new category with leftovers of the other categories
         threshold = budget.available_amount - new_category_amount
         if threshold > 0:
-            print(budget, file=sys.stderr)
+            # print(budget, file=sys.stderr)
             default_category = Budget_category(threshold=threshold,category_id=100,budget_id=budget.id,available_amount=threshold)
             db.session.add(default_category)
             db.session.commit()
@@ -197,7 +204,7 @@ def update_budget(budget_id):
     budget = Budget.query.get_or_404(budget_id)
     form = BudgetForm()
     form_bc = BudgetCategoryForm()
-    form_bc.category_id.choices = [(c.id, c.name) for c in Category.query.order_by('name')]
+    form_bc.category_id.choices = [(c.id, c.name) for c in Category.query.filter_by(deleted = False).filter(Category.id != 100).order_by('id')]
     if form.validate_on_submit():
         budget.name = form.name.data
         previous = budget.inicial_amount

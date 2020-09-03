@@ -19,7 +19,7 @@
                 </a>
             </div>
         </div>
-        {% else %}
+        {% elif current_user.is_authenticated %}
         <div class="mt-3 mb-3">
             <h6>Current budget:</h6>
             <div class="list-group">
