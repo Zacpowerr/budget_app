@@ -304,9 +304,9 @@ def delete_budget_category(budget_id,category_id):
     budget_category = Budget_category.query.get_or_404(category_id)
     budget = Budget.query.get_or_404(budget_id)
     default_category = Budget_category.query.filter_by(category_id=100).first()
-    default_category.threshold = default_category.threshold + budget_category.used_amount
-    default_category.available_amount = default_category.available_amount + budget_category.used_amount
-    budget.available_amount =  budget.available_amount + budget_category.used_amount 
+    default_category.threshold = default_category.threshold + budget_category.available_amount
+    default_category.available_amount = default_category.available_amount + budget_category.available_amount
+    budget.available_amount =  budget.available_amount + budget_category.available_amount 
     db.session.add(default_category)
     db.session.add(budget)
     db.session.delete(budget_category)
