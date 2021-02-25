@@ -145,15 +145,16 @@ def budget(budget_id):
     categories = []
     for c in budget.categories:
         category_db = Category.query.filter_by(id=c.category.id).first()
-        name = category_db.name
         category = {
             'id':c.id,
-            'name':name,
+            'name':category_db.name,
             'used_amount':c.used_amount,
             'threshold':c.threshold,
             'available_amount':c.available_amount,
         }
         categories.append(category)
+
+    categories = sorted(categories, key=lambda x: x['name'])
     return render_template('budget.html',budget=budget, title=budget.name,categories=categories)
 
 
