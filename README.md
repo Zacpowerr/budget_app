@@ -8,15 +8,15 @@
 
     ```git clone https://github.com/Zacpowerr/budget_app.git```
 
-- Create a python virtual enviroment:
+- Create a python virtual environment:
 
     ```python3 -m venv venv```
 
-- Activate the enviroment:
+- Activate the environment:
 
     ```. venv/bin/activate ```
 
-- Inside the enviroment run to install all the requirements for the system:
+- Inside the environment run to install all the requirements for the system:
 
     ```pip install -r requirements.txt```
 
