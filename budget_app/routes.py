@@ -5,6 +5,11 @@ from budget_app.forms import CategoryForm, RegisterForm, LoginForm, UpdateAccoun
 from flask_login import login_user, current_user, logout_user, login_required
 import json
 
+colors = [
+    "#F7464A", "#46BFBD", "#FDB45C", "#FEDCBA",
+    "#ABCDEF", "#DDDDDD", "#ABCABC", "#4169E1",
+    "#C71585", "#FF4500", "#FEDCBA", "#46BFBD"]
+
 # Web routes
 @app.route('/home')
 @app.route('/')
@@ -288,6 +293,19 @@ def delete_budget(budget_id):
     db.session.commit()
     flash(f'The budget has been deleted!','success')
     return redirect(url_for('budgets'))
+
+@app.route('/budget/<budget_id>/details',methods=['GET'])
+@login_required
+def budget_details(budget_id):
+    budget = Budget.query.filter_by(id=budget_id).first()
+    pie_labels = []
+    pie_values = []
+    for c in budget.categories:
+        category_db = Category.query.filter_by(id=c.category.id).first()
+        pie_labels.append(category_db.name)
+        pie_values.append(c.threshold)
+        
+    return render_template('budget_details.html',budget=budget, title=budget.name,max=17000, set=zip(pie_values, pie_labels, colors))
 
 @app.route('/budget/<budget_id>/update/category/<category_id>',methods=['GET','POST'])
 @login_required

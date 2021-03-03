@@ -4,9 +4,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="{{url_for('static',filename='favicon.ico')}}">
   <!-- Bootstrap css -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
     integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+  <!-- Chart scripts -->
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js'></script>
 
   <link rel="stylesheet" type="text/css" href="{{url_for('static',filename='main.css')}}">
   {% if title %}
@@ -33,26 +37,26 @@
             {% if current_user.is_authenticated %}
             <a class="nav-item nav-link" href="{{ url_for('categories') }}">Categories</a>
             <a class="nav-item nav-link" href="{{ url_for('budgets') }}">Budgets</a>
-              <a class="nav-item nav-link" href="{{ url_for('account') }}">Account</a>
-              <a class="nav-item nav-link" href="{{ url_for('logout') }}">Logout</a>
+            <a class="nav-item nav-link" href="{{ url_for('account') }}">Account</a>
+            <a class="nav-item nav-link" href="{{ url_for('logout') }}">Logout</a>
             {% else %}
-                <a class="nav-item nav-link" href="{{ url_for('login') }}">Login</a>
-                <a class="nav-item nav-link" href="{{ url_for('register') }}">Register</a>
+            <a class="nav-item nav-link" href="{{ url_for('login') }}">Login</a>
+            <a class="nav-item nav-link" href="{{ url_for('register') }}">Register</a>
             {% endif %}
-            </div>
+          </div>
         </div>
       </div>
     </nav>
   </header>
   <div class="container">
     {% with messages = get_flashed_messages(with_categories=true) %}
-       {% if messages %}
-          {% for category, message in messages %}
-          <div class="alert alert-{{ category }}">
-            {{ message }}
-          </div>
-          {% endfor %}
-        {% endif %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }}">
+      {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
     {% endwith %}
     {% block content %}
     {% endblock %}
