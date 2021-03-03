@@ -298,14 +298,19 @@ def delete_budget(budget_id):
 @login_required
 def budget_details(budget_id):
     budget = Budget.query.filter_by(id=budget_id).first()
-    pie_labels = []
-    pie_values = []
+    threshold_labels = []
+    threshold_values = []
+    available_labels = []
+    available_values = []
     for c in budget.categories:
         category_db = Category.query.filter_by(id=c.category.id).first()
-        pie_labels.append(category_db.name)
-        pie_values.append(c.threshold)
+        threshold_labels.append(category_db.name)
+        threshold_values.append(c.threshold)
+        if c.available_amount != 0:
+            available_labels.append(category_db.name)
+            available_values.append(c.available_amount)
         
-    return render_template('budget_details.html',budget=budget, title=budget.name,max=17000, set=zip(pie_values, pie_labels, colors))
+    return render_template('budget_details.html',budget=budget, title=budget.name,max=17000, chartT=zip(threshold_values,threshold_labels, colors),chartA=zip(available_values,available_labels, colors))
 
 @app.route('/budget/<budget_id>/update/category/<category_id>',methods=['GET','POST'])
 @login_required

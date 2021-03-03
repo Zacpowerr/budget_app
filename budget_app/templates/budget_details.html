@@ -12,13 +12,26 @@
       <p>Division of inicial amount per category</p>
       <canvas id="chart" width="400" height="200"></canvas>
     </div>
+    <div class="mt-3">
+      <p>Division of available amount per category</p>
+      <canvas id="chart2" width="400" height="200"></canvas>
+    </div>
   </div>
 </div>
 <a class="btn btn-sm btn-outline-secondary mt-3 mb-2" href="{{ url_for('budget',budget_id=budget.id)}}">Back</a>
 
 <script>
   var pieData = [
-    {% for item, label, colors in set %}
+    {% for item, label, colors in chartT %}
+      {
+        value: {{item}},
+        label: "{{label}}",
+        color : "{{colors}}"
+      },
+    {% endfor %}
+  ];
+  var pieData2 = [
+    {% for item, label, colors in chartA %}
       {
         value: {{item}},
         label: "{{label}}",
@@ -29,11 +42,13 @@
 
   // get bar chart canvas
   var mychart = document.getElementById("chart").getContext("2d");
+  var mychart2 = document.getElementById("chart2").getContext("2d");
   steps = 10
   max = {{ max }}
 
   // draw pie chart
-  new Chart(mychart).Pie(pieData);
+  new Chart(mychart).Pie(pieData,{animationEasing:"easeInOutQuart"});
+  new Chart(mychart2).Pie(pieData2,{animationEasing:"easeInOutQuart"});
 
 </script>
 {% endblock %}
