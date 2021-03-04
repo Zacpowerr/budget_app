@@ -8,3 +8,6 @@ venv
 
 # Database files
 */*.db
+
+# Vscode files
+.vscode/
