@@ -114,7 +114,11 @@ def account():
 @app.route("/categories")
 @login_required
 def categories():
-    categories = Category.query.filter_by(deleted=False).all()
+    categories = (
+        Category.query.filter_by(deleted=False)
+        .filter((Category.user_id == current_user.id) | (Category.user_id == None))
+        .all()
+    )
     return render_template("categories.html", categories=categories, title="Categories")
 
 
@@ -135,7 +139,11 @@ def new_category():
     if form.validate_on_submit():
         category = Category.query.filter_by(name=form.name.data).first()
         if category is None:
-            category = Category(name=form.name.data, description=form.description.data)
+            category = Category(
+                name=form.name.data,
+                description=form.description.data,
+                user_id=current_user.id,
+            )
         else:
             category.deleted = False
         db.session.add(category)
@@ -246,6 +254,7 @@ def new_budget():
     form_bc.category_id.choices = [
         (c.id, c.name)
         for c in Category.query.filter_by(deleted=False)
+        .filter_by(user_id=current_user.id)
         .filter(Category.id != 100)
         .order_by("id")
     ]

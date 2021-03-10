@@ -11,6 +11,7 @@ if default_category == None:
         id=100,
         name="Leftovers",
         description="Money that is leftover from other categories",
+        user_id=None,
     )
     db.session.add(default_category)
     db.session.commit()

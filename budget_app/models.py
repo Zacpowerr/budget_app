@@ -15,6 +15,7 @@ class User(db.Model, UserMixin):
     saving_total = db.Column(db.Float, nullable=True, default=0)
     total_available_amount = db.Column(db.Float, nullable=True, default=0)
     budgets = db.relationship("Budget", backref="user", lazy=True)
+    categories = db.relationship("Category", backref="user", lazy=True)
 
     def __repr__(self):
         return f"User('{self.username}','{self.total_available_amount}')"
@@ -40,9 +41,10 @@ class Budget(db.Model):
 
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(45), nullable=False, unique=True)
+    name = db.Column(db.String(45), nullable=False, unique=False)
     description = db.Column(db.String(45), nullable=True)
     deleted = db.Column(db.Boolean(), default=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
     budgets = db.relationship("Budget_category", backref="category", lazy=True)
 
     def __repr__(self):
