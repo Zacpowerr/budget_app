@@ -12,8 +12,8 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(45), unique=True)
     email = db.Column(db.String(45), unique=True)
     password = db.Column(db.String(45))
-    saving_total = db.Column(db.Float, nullable=True, default=0)
-    total_available_amount = db.Column(db.Float, nullable=True, default=0)
+    saving_total = db.Column(db.Float(precision=2), nullable=True, default=0)
+    total_available_amount = db.Column(db.Float(precision=2), nullable=True, default=0)
     budgets = db.relationship("Budget", backref="user", lazy=True)
     categories = db.relationship("Category", backref="user", lazy=True)
 
@@ -24,9 +24,9 @@ class User(db.Model, UserMixin):
 class Budget(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
-    inicial_amount = db.Column(db.Float)
-    saving_amount = db.Column(db.Float, nullable=True, default=0)
-    available_amount = db.Column(db.Float, nullable=True, default=0)
+    inicial_amount = db.Column(db.Float(precision=2))
+    saving_amount = db.Column(db.Float(precision=2), nullable=True, default=0)
+    available_amount = db.Column(db.Float(precision=2), nullable=True, default=0)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
     def __repr__(self):
@@ -53,9 +53,9 @@ class Category(db.Model):
 
 class Budget_category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    threshold = db.Column(db.Float, nullable=False)
-    used_amount = db.Column(db.Float, nullable=True, default=0)
-    available_amount = db.Column(db.Float, nullable=True, default=0)
+    threshold = db.Column(db.Float(precision=2), nullable=False)
+    used_amount = db.Column(db.Float(precision=2), nullable=True, default=0)
+    available_amount = db.Column(db.Float(precision=2), nullable=True, default=0)
     budget_id = db.Column(db.Integer, db.ForeignKey("budget.id"), nullable=False)
     category_id = db.Column(db.Integer, db.ForeignKey("category.id"), nullable=False)
     budgets = db.relationship("Budget", backref="categories", lazy=True)
