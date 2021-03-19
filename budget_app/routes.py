@@ -1,7 +1,7 @@
 import json
 from flask import request, render_template, url_for, flash, redirect, jsonify
 from flask_login import login_user, current_user, logout_user, login_required
-from budget_app import app, db, bcrypt
+from budget_app import app, db, bcrypt, default_category_id
 from budget_app.models import User, Category, Budget, Budget_category
 from budget_app.forms import (
     CategoryForm,
@@ -12,6 +12,9 @@ from budget_app.forms import (
     BudgetCategoryForm,
     UpdateBudgetCategoryForm,
 )
+
+# Debug trigger
+# print(budget, file=sys.stderr)
 
 colors = [
     "#F7464A",
@@ -181,7 +184,7 @@ def update_category(category_id):
 @login_required
 def delete_category(category_id):
     category = Category.query.get_or_404(category_id)
-    if category.id == 100:
+    if category.id == default_category_id:
         flash(f"The category can`t deleted!", "warning")
         return redirect(url_for("categories"))
     # Removing category from budgets
@@ -190,11 +193,11 @@ def delete_category(category_id):
         budget = Budget.query.filter_by(id=budget_category.budget_id).first()
         default_category = (
             Budget_category.query.filter_by(budget_id=budget.id)
-            .filter_by(category_id=100)
+            .filter_by(category_id=default_category_id)
             .first()
         )
         default_category.threshold = (
-            default_category.threshold + budget_category.available_amount
+            default_category.threshold + budget_category.threshold
         )
         default_category.available_amount = (
             default_category.available_amount + budget_category.available_amount
@@ -230,7 +233,7 @@ def budget(budget_id):
     budget = Budget.query.get_or_404(budget_id)
     categories = []
     for c in budget.categories:
-        category_db = Category.query.filter_by(id=c.category.id).first()
+        category_db = Category.query.filter_by(id=c.category_id).first()
         category = {
             "id": c.id,
             "name": category_db.name,
@@ -255,7 +258,7 @@ def new_budget():
         (c.id, c.name)
         for c in Category.query.filter_by(deleted=False)
         .filter_by(user_id=current_user.id)
-        .filter(Category.id != 100)
+        .filter(Category.id != default_category_id)
         .order_by("id")
     ]
     if form.validate_on_submit():
@@ -301,10 +304,9 @@ def new_budget():
         # Adding new category with leftovers of the other categories
         threshold = budget.available_amount - new_category_amount
         if threshold > 0:
-            # print(budget, file=sys.stderr)
             default_category = Budget_category(
                 threshold=threshold,
-                category_id=100,
+                category_id=default_category_id,
                 budget_id=budget.id,
                 available_amount=threshold,
             )
@@ -327,7 +329,7 @@ def update_budget(budget_id):
     form_bc.category_id.choices = [
         (c.id, c.name)
         for c in Category.query.filter_by(deleted=False)
-        .filter(Category.id != 100)
+        .filter(Category.id != default_category_id)
         .order_by("id")
     ]
     if form.validate_on_submit():
@@ -369,7 +371,9 @@ def update_budget(budget_id):
                 db.session.add(budget_category)
             # Adding new category with leftovers of the other categories
             budget_categories = (
-                Budget_category.query.filter(Budget_category.category_id != 100)
+                Budget_category.query.filter(
+                    Budget_category.category_id != default_category_id
+                )
                 .filter_by(budget_id=budget.id)
                 .all()
             )
@@ -379,12 +383,12 @@ def update_budget(budget_id):
             if threshold > 0:
                 default_category = (
                     Budget_category.query.filter_by(budget_id=budget.id)
-                    .filter_by(category_id=100)
+                    .filter_by(category_id=default_category_id)
                     .first()
                 )
                 default_category.threshold = budget.inicial_amount - threshold
                 default_category.available_amount = (
-                    default_category.available_amount - float(available_amount)
+                    default_category.threshold - default_category.used_amount
                 )
                 db.session.add(default_category)
                 db.session.commit()
@@ -393,7 +397,7 @@ def update_budget(budget_id):
         else:
             default_category = (
                 Budget_category.query.filter_by(budget_id=budget.id)
-                .filter_by(category_id=100)
+                .filter_by(category_id=default_category_id)
                 .first()
             )
             default_category.threshold = default_category.threshold + amount_dif
@@ -441,10 +445,10 @@ def budget_details(budget_id):
     for c in budget.categories:
         category_db = Category.query.filter_by(id=c.category.id).first()
         threshold_labels.append(category_db.name)
-        threshold_values.append(c.threshold)
+        threshold_values.append(round(c.threshold, 2))
         if c.available_amount != 0:
             available_labels.append(category_db.name)
-            available_values.append(c.available_amount)
+            available_values.append(round(c.available_amount, 2))
 
     return render_template(
         "budget_details.html",
@@ -464,8 +468,12 @@ def update_budget_category(budget_id, category_id):
     category_name = category.name
     budget = Budget.query.get_or_404(budget_id)
     form = UpdateBudgetCategoryForm()
-    previous = budget_category.used_amount
+    previous = round(budget_category.used_amount, 2)
     if form.validate_on_submit():
+        if form.use_all.data:
+            form.used_amount.data = budget_category.threshold
+            previous = 0
+        budget_category.description = form.description.data
         budget_category.used_amount = previous + float(form.used_amount.data)
         budget_category.available_amount = budget_category.available_amount - float(
             form.used_amount.data
@@ -476,18 +484,6 @@ def update_budget_category(budget_id, category_id):
                 form.used_amount.data
             )
             db.session.add(budget)
-            if budget_category.category.id != 100:
-                default_category = Budget_category.query.filter_by(
-                    category_id=100
-                ).first()
-                default_category.available_amount = (
-                    default_category.available_amount
-                    - (budget_category.available_amount * -1)
-                )
-                default_category.threshold = default_category.threshold - (
-                    budget_category.available_amount * -1
-                )
-                db.session.add(default_category)
         db.session.commit()
         flash(f"The category has been updated!", "success")
         return redirect(url_for("budget", budget_id=budget_id))
@@ -507,22 +503,31 @@ def update_budget_category(budget_id, category_id):
 @login_required
 def delete_budget_category(budget_id, category_id):
     budget_category = Budget_category.query.get_or_404(category_id)
-    budget = Budget.query.get_or_404(budget_id)
-    default_category = Budget_category.query.filter_by(category_id=100).first()
-    default_category.threshold = (
-        default_category.threshold + budget_category.available_amount
-    )
-    default_category.available_amount = (
-        default_category.available_amount + budget_category.available_amount
-    )
-    default_category.used_amount = (
-        default_category.used_amount + budget_category.used_amount
-    )
-    db.session.add(default_category)
-    db.session.add(budget)
-    db.session.delete(budget_category)
-    db.session.commit()
-    flash(f"The category has been deleted!", "success")
+    if budget_category.category_id != default_category_id:
+        budget = Budget.query.get_or_404(budget_id)
+        default_category = (
+            Budget_category.query.filter_by(budget_id=budget_id)
+            .filter_by(category_id=default_category_id)
+            .first()
+        )
+        default_category.threshold = (
+            default_category.threshold + budget_category.threshold
+        )
+        default_category.used_amount = (
+            default_category.used_amount + budget_category.used_amount
+        )
+
+        default_category.available_amount = (
+            default_category.threshold - default_category.used_amount
+        )
+        db.session.add(default_category)
+        db.session.add(budget)
+        db.session.delete(budget_category)
+        db.session.commit()
+        flash(f"The category has been deleted!", "success")
+    else:
+        flash(f"The category can't deleted!", "warning")
+
     return redirect(url_for("budget", budget_id=budget_id))
 
 

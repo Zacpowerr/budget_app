@@ -12,6 +12,7 @@ bcrypt = Bcrypt()
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
 login_manager.login_message_category = "info"
+default_category_id = 1
 # END app configs
 
 # app routes
