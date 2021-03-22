@@ -3,47 +3,61 @@
 {% block content %}
 <div class="card">
   <div class="card-body">
-        <h3>{{ budget.name }}</h3>
-        <p class="text-muted"> Available: {{ (budget.available_amount | round(2)) }}</p>
-        <a class="btn btn-outline-secondary btn-sm m-1 mr-2 mb-3"
-            href="{{ url_for('update_budget',budget_id=budget.id)}}">Update</a>
-            <button type="button" class="btn btn-outline-danger btn-sm m-1 mr-2 mb-3" data-toggle="modal" data-target="#deleteModal" >Delete</button>
-            <a class="btn btn-outline-secondary btn-sm m-1 mr-2 mb-3"
-                href="{{ url_for('budget_details',budget_id=budget.id)}}">Details</a>
-        <div class="list-group" style="clear:right;">
-            {% for category in categories %}
-            <a href="{{ url_for('update_budget_category',budget_id=budget.id,category_id=category.id) }}" class="list-group-item list-group-item-action">
-                <div>
-                    {{ category.name }}
-                </div>
-                <small class="text-muted"> Available amount: {{category.available_amount | round(2)}}</small>
-                <small class="text-muted mr-3"> Amount used: {{category.used_amount | round(2)}}</small>
-                <small class="text-muted"> Threshold: {{category.threshold | round(2)}}</small>
-            </a>
-            {% endfor %}
+    <h3>{{ budget.name }}</h3>
+    <p class="text-muted"> Available:
+      <span class="{% if budget.available_amount > 0 %} text-success {% else %} text-danger {% endif %}">
+        {{ (budget.available_amount | round(2)) }}
+      </span>
+    </p>
+    <a class="btn btn-outline-secondary btn-sm m-1 mr-2 mb-3"
+      href="{{ url_for('update_budget',budget_id=budget.id)}}">Update</a>
+    <button type="button" class="btn btn-outline-danger btn-sm m-1 mr-2 mb-3" data-toggle="modal"
+      data-target="#deleteModal">Delete</button>
+    <a class="btn btn-outline-secondary btn-sm m-1 mr-2 mb-3"
+      href="{{ url_for('budget_details',budget_id=budget.id)}}">Details</a>
+    <div class="list-group" style="clear:right;">
+      {% for category in categories %}
+      <a href="{{ url_for('update_budget_category',budget_id=budget.id,category_id=category.id) }}"
+        class="list-group-item list-group-item-action">
+        <div>
+          {{ category.name }}
         </div>
+        <small class="text-muted"> Available amount:
+          <span class="{% if category.available_amount > 0 %} text-success {% else %} text-danger {% endif %}">
+            {{category.available_amount | round(2)}}</small>
+        </span>
+        <small class="text-muted mr-3"> Amount used:
+          <span class="{% if category.used_amount > 0 %} text-danger {% endif %}">
+            {{category.used_amount | round(2)}}
+          </span>
+        </small>
+        <small class="text-muted"> Threshold:{{category.threshold | round(2)}}</small>
+      </a>
+      {% endfor %}
     </div>
+  </div>
 </div>
 <a class="btn btn-sm btn-outline-secondary mt-3 mb-2" href="{{ url_for('budgets')}}">Back</a>
 
 <!-- Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="deleteModalLabel">Delete budget?</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <form action="{{ url_for('delete_budget',budget_id=budget.id) }}" method="POST">
-              <input type="submit" class="btn btn-danger" value="Delete">
-          </form>
-        </div>
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteModalLabel">Delete budget?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <form action="{{ url_for('delete_budget',budget_id=budget.id) }}" method="POST">
+          <input type="submit" class="btn btn-danger" value="Delete">
+        </form>
       </div>
     </div>
   </div>
+</div>
 
 {% endblock %}
