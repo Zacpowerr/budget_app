@@ -471,13 +471,28 @@ def update_budget_category(budget_id, category_id):
     previous = round(budget_category.used_amount, 2)
     if form.validate_on_submit():
         if form.use_all.data:
-            form.used_amount.data = budget_category.threshold
-            previous = 0
-        budget_category.description = form.description.data
-        budget_category.used_amount = previous + float(form.used_amount.data)
-        budget_category.available_amount = budget_category.available_amount - float(
-            form.used_amount.data
-        )
+            if (
+                budget_category.available_amount == 0
+                and budget_category.used_amount == budget_category.threshold
+            ):
+                flash(f"The category is already at its limit!", "danger")
+                return redirect(
+                    url_for(
+                        "update_budget_category",
+                        budget_id=budget_id,
+                        category_id=category_id,
+                    )
+                )
+            rest = budget_category.available_amount
+            budget_category.available_amount = 0
+            budget_category.used_amount = budget_category.threshold
+
+            form.used_amount.data = rest
+        else:
+            budget_category.used_amount = previous + float(form.used_amount.data)
+            budget_category.available_amount = budget_category.available_amount - float(
+                form.used_amount.data
+            )
         db.session.add(budget_category)
         if form.used_amount.data != 0:
             budget.available_amount = budget.available_amount - float(
