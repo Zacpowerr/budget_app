@@ -9,19 +9,23 @@
 </div>
 <div class="list-group">
     {% if budgets|length == 0 %}
-        <a href="#" class="list-group-item-action ml-3">
-            <div>
-                You don`t have any budget at the moment.
-            </div>
-        </a>
+    <a href="#" class="list-group-item-action ml-3">
+        <div>
+            You don`t have any budget at the moment.
+        </div>
+    </a>
     {% endif %}
-    
+
     {% for budget in budgets %}
     <a href="{{ url_for('budget',budget_id=budget.id) }}" class="list-group-item list-group-item-action">
         <div>
             {{ budget.name }}
         </div>
-        <small class="text-muted">Available Amount: {{(budget.available_amount | round(2))}}</small>
+        <small class="text-muted">Available Amount:
+            <span class="{% if budget.available_amount > 0 %} text-success {% else %} text-danger {% endif %}">
+                {{ (budget.available_amount | round(2)) }}
+            </span>
+        </small>
     </a>
     {% endfor %}
 </div>
