@@ -12,7 +12,12 @@
                         {{ budget.name }}
                     </div>
                     <small class="text-muted">Inicial Amount: {{(budget.inicial_amount | round(2))}}</small>
-                    <small class="text-muted">Available Amount: {{(budget.available_amount | round(2))}}</small>
+                    <small class="text-muted">Available Amount:
+                        <span
+                            class="{% if budget.available_amount > 0 %} text-success {% else %} text-danger {% endif %}">
+                            {{ (budget.available_amount | round(2)) }}
+                        </span>
+                    </small>
                 </a>
             </div>
         </div>
@@ -30,11 +35,11 @@
         {% endif %}
         <div class="mt-3 mb-3">
             {% if current_user.is_authenticated %}
-                <a class="btn btn-sm btn-outline-dark" role="button" href="{{ url_for('budgets') }}">Budgets</a>
-                <a class="btn btn-sm btn-outline-dark" role="button" href="{{ url_for('categories') }}">Categories</a>
+            <a class="btn btn-sm btn-outline-dark" role="button" href="{{ url_for('budgets') }}">Budgets</a>
+            <a class="btn btn-sm btn-outline-dark" role="button" href="{{ url_for('categories') }}">Categories</a>
             {% else %}
-                <p>You need to login to be able to use the system.</p>
-                <a class="btn btn-sm btn-outline-dark" role="button" href="{{ url_for('login') }}">Login</a>
+            <p>You need to login to be able to use the system.</p>
+            <a class="btn btn-sm btn-outline-dark" role="button" href="{{ url_for('login') }}">Login</a>
             {% endif %}
         </div>
     </div>

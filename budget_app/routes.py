@@ -1,4 +1,5 @@
 import json
+import random
 from flask import request, render_template, url_for, flash, redirect, jsonify
 from flask_login import login_user, current_user, logout_user, login_required
 from budget_app import app, db, bcrypt, default_category_id
@@ -30,6 +31,7 @@ colors = [
     "#FEDCBA",
     "#46BFBD",
 ]
+
 
 # Web routes
 @app.route("/home")
@@ -442,7 +444,9 @@ def budget_details(budget_id):
     threshold_values = []
     available_labels = []
     available_values = []
+    colors = []
     for c in budget.categories:
+        colors.append("#" + "%06x" % random.randint(0, 0xFFFFFF))
         category_db = Category.query.filter_by(id=c.category.id).first()
         threshold_labels.append(category_db.name)
         threshold_values.append(round(c.threshold, 2))
@@ -454,7 +458,6 @@ def budget_details(budget_id):
         "budget_details.html",
         budget=budget,
         title=budget.name,
-        max=17000,
         chartT=zip(threshold_values, threshold_labels, colors),
         chartA=zip(available_values, available_labels, colors),
     )
@@ -478,6 +481,29 @@ def update_budget_category(budget_id, category_id):
         budget_category.available_amount = budget_category.available_amount - float(
             form.used_amount.data
         )
+
+            if (
+                budget_category.available_amount == 0
+                and budget_category.used_amount == budget_category.threshold
+            ):
+                flash(f"The category is already at its limit!", "danger")
+                return redirect(
+                    url_for(
+                        "update_budget_category",
+                        budget_id=budget_id,
+                        category_id=category_id,
+                    )
+                )
+            rest = budget_category.available_amount
+            budget_category.available_amount = 0
+            budget_category.used_amount = budget_category.threshold
+
+            form.used_amount.data = rest
+        else:
+            budget_category.used_amount = previous + float(form.used_amount.data)
+            budget_category.available_amount = budget_category.available_amount - float(
+                form.used_amount.data
+            )
         db.session.add(budget_category)
         if form.used_amount.data != 0:
             budget.available_amount = budget.available_amount - float(
