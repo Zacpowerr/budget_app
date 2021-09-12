@@ -91,5 +91,6 @@ class BudgetCategoryForm(FlaskForm):
 
 class UpdateBudgetCategoryForm(FlaskForm):
     used_amount = DecimalField("Used amount", places=2, rounding=None)
+    description = StringField("Description")
     use_all = SubmitField("Use all")
     submit = SubmitField("Submit")

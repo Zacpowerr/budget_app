@@ -17,6 +17,21 @@ from budget_app.forms import (
 # Debug trigger
 # print(budget, file=sys.stderr)
 
+colors = [
+    "#F7464A",
+    "#46BFBD",
+    "#FDB45C",
+    "#FEDCBA",
+    "#ABCDEF",
+    "#DDDDDD",
+    "#ABCABC",
+    "#4169E1",
+    "#C71585",
+    "#FF4500",
+    "#FEDCBA",
+    "#46BFBD",
+]
+
 
 # Web routes
 @app.route("/home")
@@ -459,6 +474,14 @@ def update_budget_category(budget_id, category_id):
     previous = round(budget_category.used_amount, 2)
     if form.validate_on_submit():
         if form.use_all.data:
+            form.used_amount.data = budget_category.threshold
+            previous = 0
+        budget_category.description = form.description.data
+        budget_category.used_amount = previous + float(form.used_amount.data)
+        budget_category.available_amount = budget_category.available_amount - float(
+            form.used_amount.data
+        )
+
             if (
                 budget_category.available_amount == 0
                 and budget_category.used_amount == budget_category.threshold
