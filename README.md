@@ -14,7 +14,7 @@
 
 - Activate the environment:
 
-    ```. venv/bin/activate ```
+    ```. venv/Scripts/activate ```
 
 - Inside the environment run to install all the requirements for the system:
 
