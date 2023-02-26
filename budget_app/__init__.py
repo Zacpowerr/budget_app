@@ -20,5 +20,8 @@ from budget_app import routes
 
 # END app routes
 
+# resets db
+with app.app_context():
+    db.create_all()
 # call migrations
 from budget_app import migrations
